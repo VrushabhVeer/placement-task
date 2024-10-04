@@ -1,23 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import UserDetails from "./components/UserDetails";
+import { fetchUsers, setPage } from "./redux/userSlice";
 
 function App() {
+  const dispatch = useDispatch();
+  const { users, currentPage } = useSelector((state) => state.users);
+
+  const totalPages = users.length;
+
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      dispatch(setPage(currentPage + 1));
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      dispatch(setPage(currentPage - 1));
+    }
+  };
+
+  const currentUser = users[currentPage - 1];
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {currentUser && <UserDetails user={currentUser} />}
+      <div className="pagination">
+        <button onClick={handlePreviousPage} disabled={currentPage === 1}>
+          Previous
+        </button>
+        <span>{currentPage}</span>
+        <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+          Next
+        </button>
+      </div>
     </div>
   );
 }
